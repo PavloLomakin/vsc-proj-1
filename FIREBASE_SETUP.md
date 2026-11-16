@@ -7,14 +7,15 @@ adds a private cloud copy that follows the signed-in account across devices.
 
 1. Create a Firebase project and register a **Web app** in Project settings.
 2. In **Authentication → Sign-in method**, enable **Google**. Add the deployed
-   website domain and `localhost` to **Authorized domains**.
+   website domain and `localhost` to **Authorized domains**. For the GitHub
+   Pages site, add `pavlolomakin.github.io`.
 3. Create a **Cloud Firestore** database. In its **Rules** tab, publish the
    rules from [`firestore.rules`](./firestore.rules). They allow a signed-in
    user to read and write only their own progress document.
-4. Copy [`.env.example`](./.env.example) to `.env.local` and fill in the Web app
-   config values from Project settings. The Firebase web config is public app
-   configuration, not an admin credential; never put a Firebase service
-   account key in the app.
+4. Copy [`.env.example`](./.env.example) to `.env.local`. It contains this
+   project's Firebase Web app config; replace it if you use a different
+   Firebase project. The Firebase web config is public app configuration, not
+   an admin credential; never put a Firebase service account key in the app.
 5. Restart the Expo server after changing `.env.local`.
 
 The web version uses Firebase's Google popup flow. For native builds, also
