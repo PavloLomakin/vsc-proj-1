@@ -22,8 +22,9 @@
 ## Публикация веб-версии
 
 При push в ветку `main` GitHub Actions собирает статический сайт Expo и публикует
-его через GitHub Pages. После включения Pages в настройках репозитория сайт будет
-доступен по адресу `https://pavlolomakin.github.io/vsc-proj-1/`.
+его через GitHub Pages. В **Settings → Pages → Build and deployment** выберите
+**Source: GitHub Actions**. После успешного workflow сайт будет доступен по адресу
+`https://pavlolomakin.github.io/vsc-proj-1/`.
 
 Локальная production-сборка:
 
