@@ -205,7 +205,7 @@ function LifelineButton({ label, used, disabled, onPress }: LifelineButtonProps)
 
 function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
-    <View style={styles.brand}>
+    <View style={[styles.brand, compact && styles.brandCompact]}>
       <Link href="https://pavlolomakin.github.io/Pavlo.Lomakin/" asChild>
         <Pressable
           accessibilityLabel="Открыть сайт Павла Ломакина"
@@ -223,8 +223,10 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
         </Pressable>
       </Link>
       <View style={styles.brandCopy}>
-        <Text style={styles.brandEyebrow}>Инвестиции с Павлом Ломакиным</Text>
-        <Text style={styles.brandName}>ИНВЕСТ-М</Text>
+        <Text style={[styles.brandEyebrow, compact && styles.brandEyebrowCompact]}>
+          Инвестиции с Павлом Ломакиным
+        </Text>
+        <Text style={[styles.brandName, compact && styles.brandNameCompact]}>ИНВЕСТ-М</Text>
       </View>
     </View>
   );
@@ -777,21 +779,26 @@ export default function HomeScreen() {
           contentContainerStyle={[
             styles.page,
             screen === 'home' && styles.homePage,
+            screen === 'home' && isCompact && styles.homePageCompact,
             screen === 'game' && isCompact && styles.gamePageCompact,
           ]}
           keyboardShouldPersistTaps="handled"
         >
           {screen === 'home' && (
-            <View style={styles.homeCard}>
-              <BrandMark />
-              <View style={styles.goldDivider} />
-              <Text style={styles.homeTitle}>Кто хочет стать</Text>
-              <Text style={styles.homeTitleGold}>инвест-миллионером?</Text>
-              <Text style={styles.homeDescription}>
+            <View style={[styles.homeCard, isCompact && styles.homeCardCompact]}>
+              <BrandMark compact={isCompact} />
+              <View style={[styles.goldDivider, isCompact && styles.goldDividerCompact]} />
+              <Text style={[styles.homeTitle, isCompact && styles.homeTitleCompact]}>
+                Кто хочет стать
+              </Text>
+              <Text style={[styles.homeTitleGold, isCompact && styles.homeTitleGoldCompact]}>
+                инвест-миллионером?
+              </Text>
+              <Text style={[styles.homeDescription, isCompact && styles.homeDescriptionCompact]}>
                 Проверь свои инвест-знания, готов ли ты разогнать свой портфель до $1 млн. или не
                 сможешь дойти и до $1000 ?!
               </Text>
-              <View style={styles.accountCard}>
+              <View style={[styles.accountCard, isCompact && styles.accountCardCompact]}>
                 <View style={styles.accountCopy}>
                   <Text style={styles.accountEyebrow}>СОХРАНЕНИЕ ПРОГРЕССА</Text>
                   <Text style={styles.accountDescription}>
@@ -822,9 +829,10 @@ export default function HomeScreen() {
                   }}
                   disabled={!isFirebaseConfigured || authLoading || authBusy}
                   variant="secondary"
+                  compact={isCompact}
                 />
               </View>
-              <View style={styles.investorRankCard}>
+              <View style={[styles.investorRankCard, isCompact && styles.investorRankCardCompact]}>
                 <View style={styles.investorRankHeading}>
                   <View style={styles.investorRankCopy}>
                     <Text style={styles.investorRankEyebrow}>РЕЙТИНГ ИНВЕСТОРА</Text>
@@ -850,7 +858,7 @@ export default function HomeScreen() {
                   Ты уже ответил правильно на все вопросы. Новых вопросов для игры пока нет.
                 </Text>
               )}
-              <View style={styles.homeActions}>
+              <View style={[styles.homeActions, isCompact && styles.homeActionsCompact]}>
                 <ActionButton
                   label="Начать игру"
                   disabled={
@@ -860,6 +868,7 @@ export default function HomeScreen() {
                     (authUser !== null && remainingQuestionCount === 0)
                   }
                   onPress={() => startGame('millionaire')}
+                  compact={isCompact}
                 />
                 <ActionButton
                   label="Радар инвестора · до 30 вопросов"
@@ -871,21 +880,24 @@ export default function HomeScreen() {
                   }
                   onPress={() => startGame('radar')}
                   variant="secondary"
+                  compact={isCompact}
                 />
                 <ActionButton
                   label={`Ачивки · ${getUnlockedAchievements(stats).length}/${ACHIEVEMENTS.length}`}
                   disabled={statsLoading || authLoading || statsError !== null}
                   onPress={() => setScreen('achievements')}
                   variant="secondary"
+                  compact={isCompact}
                 />
                 <ActionButton
                   label={`Убыточные позиции · ${stats.mistakeIds.length}`}
                   disabled={statsLoading || authLoading || statsError !== null || stats.mistakeIds.length === 0}
                   onPress={() => setScreen('mistakes')}
                   variant="secondary"
+                  compact={isCompact}
                 />
               </View>
-              <Text style={styles.disclaimer}>
+              <Text style={[styles.disclaimer, isCompact && styles.disclaimerCompact]}>
                 Игра носит образовательный характер и не является инвестиционной рекомендацией.
               </Text>
             </View>
@@ -1549,6 +1561,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  homePageCompact: {
+    justifyContent: 'flex-start',
+    paddingVertical: 12,
+  },
   homeCard: {
     width: '100%',
     maxWidth: 620,
@@ -1560,10 +1576,18 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     backgroundColor: '#0d1b35',
   },
+  homeCardCompact: {
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    borderRadius: 22,
+  },
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  brandCompact: {
+    gap: 10,
   },
   brandImageLink: {
     width: 48,
@@ -1588,6 +1612,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.5,
   },
+  brandEyebrowCompact: {
+    fontSize: 8,
+  },
   brandName: {
     marginTop: 3,
     color: '#ffffff',
@@ -1595,12 +1622,20 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 2,
   },
+  brandNameCompact: {
+    fontSize: 14,
+    letterSpacing: 1.6,
+  },
   goldDivider: {
     width: 72,
     height: 2,
     marginTop: 28,
     marginBottom: 26,
     backgroundColor: GOLD,
+  },
+  goldDividerCompact: {
+    marginTop: 14,
+    marginBottom: 10,
   },
   homeOverline: {
     color: GOLD,
@@ -1616,12 +1651,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
   },
+  homeTitleCompact: {
+    marginTop: 8,
+    fontSize: 24,
+    lineHeight: 29,
+  },
   homeTitleGold: {
     marginTop: 4,
     color: GOLD,
     fontSize: 34,
     fontWeight: '800',
     textAlign: 'center',
+  },
+  homeTitleGoldCompact: {
+    marginTop: 0,
+    fontSize: 27,
+    lineHeight: 32,
   },
   homeDescription: {
     maxWidth: 470,
@@ -1631,6 +1676,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
+  },
+  homeDescriptionCompact: {
+    marginTop: 10,
+    marginBottom: 16,
+    fontSize: 14,
+    lineHeight: 20,
   },
   accountCard: {
     width: '100%',
@@ -1642,6 +1693,11 @@ const styles = StyleSheet.create({
     borderColor: '#344969',
     borderRadius: 16,
     backgroundColor: '#111f3a',
+  },
+  accountCardCompact: {
+    gap: 8,
+    marginBottom: 14,
+    padding: 12,
   },
   accountCopy: {
     gap: 6,
@@ -1667,6 +1723,9 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     gap: 12,
   },
+  homeActionsCompact: {
+    gap: 8,
+  },
   investorRankCard: {
     width: '100%',
     maxWidth: 320,
@@ -1677,6 +1736,11 @@ const styles = StyleSheet.create({
     borderColor: '#66552d',
     borderRadius: 16,
     backgroundColor: '#191f2c',
+  },
+  investorRankCardCompact: {
+    gap: 8,
+    marginBottom: 14,
+    padding: 12,
   },
   investorRankHeading: {
     flexDirection: 'row',
@@ -1913,6 +1977,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 17,
     textAlign: 'center',
+  },
+  disclaimerCompact: {
+    marginTop: 14,
+    fontSize: 10,
+    lineHeight: 14,
   },
   actionButton: {
     minHeight: 50,
