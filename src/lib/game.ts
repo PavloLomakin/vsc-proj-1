@@ -54,9 +54,12 @@ export function pickQuestions(
   allQuestions: readonly QuizQuestion[],
   mode: GameMode,
   mistakeIds: readonly string[] = [],
+  excludedIds: readonly string[] = [],
 ): GameQuestionSet {
   const seed = `${Date.now()}-${Math.random()}`;
   const random = createRandom(seed);
+  const excluded = new Set(excludedIds);
+  const availableQuestions = allQuestions.filter((question) => !excluded.has(question.id));
 
   if (mode === 'mistakes') {
     const missed = new Set(mistakeIds);
@@ -69,7 +72,7 @@ export function pickQuestions(
   if (mode === 'radar') {
     const questions: QuizQuestion[] = [];
     for (const skill of RADAR_SKILLS) {
-      const pool = allQuestions.filter((question) => skill.categories.includes(question.category));
+      const pool = availableQuestions.filter((question) => skill.categories.includes(question.category));
       questions.push(...shuffle(pool, random).slice(0, 6));
     }
 
@@ -89,11 +92,11 @@ export function pickQuestions(
     }
   };
 
-  addFrom(allQuestions.filter((question) => question.difficulty <= 2), 5);
-  addFrom(allQuestions.filter((question) => question.difficulty >= 2 && question.difficulty <= 3), 5);
-  addFrom(allQuestions.filter((question) => question.difficulty >= 3), 5);
+  addFrom(availableQuestions.filter((question) => question.difficulty <= 2), 5);
+  addFrom(availableQuestions.filter((question) => question.difficulty >= 2 && question.difficulty <= 3), 5);
+  addFrom(availableQuestions.filter((question) => question.difficulty >= 3), 5);
 
-  for (const question of shuffle(allQuestions, random)) {
+  for (const question of shuffle(availableQuestions, random)) {
     if (selected.length >= 15) break;
     if (!selected.some((picked) => picked.id === question.id)) selected.push(question);
   }

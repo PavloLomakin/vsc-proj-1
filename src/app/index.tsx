@@ -132,6 +132,7 @@ type ActionButtonProps = {
   onPress: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  compact?: boolean;
 };
 
 function ActionButton({
@@ -139,6 +140,7 @@ function ActionButton({
   onPress,
   variant = 'primary',
   disabled = false,
+  compact = false,
 }: ActionButtonProps) {
   const variantStyle =
     variant === 'primary'
@@ -156,12 +158,20 @@ function ActionButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.actionButton,
+        compact && styles.actionButtonCompact,
         variantStyle,
         pressed && !disabled && styles.buttonPressed,
         disabled && styles.buttonDisabled,
       ]}
     >
-      <Text style={textStyle}>{label}</Text>
+      <Text
+        style={[
+          textStyle,
+          compact && (variant === 'primary' ? styles.primaryButtonTextCompact : styles.secondaryButtonTextCompact),
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -193,14 +203,14 @@ function LifelineButton({ label, used, disabled, onPress }: LifelineButtonProps)
   );
 }
 
-function BrandMark() {
+function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <View style={styles.brand}>
       <Link href="https://pavlolomakin.github.io/Pavlo.Lomakin/" asChild>
         <Pressable
           accessibilityLabel="Открыть сайт Павла Ломакина"
           accessibilityRole="link"
-          style={styles.brandImageLink}
+          style={[styles.brandImageLink, compact && styles.brandImageLinkCompact]}
         >
           <Image
             source={require('@/assets/images/profile-icon.jpg')}
@@ -332,6 +342,7 @@ function RadarChart({ skills }: { skills: ReturnType<typeof getRadarResults> }) 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const isWide = width >= 820;
+  const isCompact = width <= 600;
   const [screen, setScreen] = useState<Screen>('home');
   const [gameMode, setGameMode] = useState<GameMode>('millionaire');
   const [gameQuestions, setGameQuestions] = useState<QuizQuestion[]>([]);
@@ -501,6 +512,9 @@ export default function HomeScreen() {
   }
 
   const question = gameQuestions[questionIndex];
+  const remainingQuestionCount = authUser === null
+    ? QUESTIONS.length
+    : QUESTIONS.filter((candidate) => !stats.uniqueCorrectIds.includes(candidate.id)).length;
   const radarResults = getRadarResults(attempts);
   const newAchievementTitles = newAchievements
     .map((id) => ACHIEVEMENTS.find((achievement) => achievement.id === id)?.title)
@@ -541,7 +555,17 @@ export default function HomeScreen() {
 
   function startGame(mode: GameMode = 'millionaire') {
     if (mode === 'mistakes' && statsRef.current.mistakeIds.length === 0) return;
-    const { questions, seed } = pickQuestions(QUESTIONS, mode, statsRef.current.mistakeIds);
+    const excludedIds = accountUidRef.current === null ? [] : statsRef.current.uniqueCorrectIds;
+    const { questions, seed } = pickQuestions(
+      QUESTIONS,
+      mode,
+      statsRef.current.mistakeIds,
+      excludedIds,
+    );
+    if (questions.length === 0) {
+      setScreen('home');
+      return;
+    }
     resetRoundState(mode, questions, seed);
   }
 
@@ -674,10 +698,16 @@ export default function HomeScreen() {
       }
 
       if (nextIndex >= gameQuestions.length) {
+        const completedQuestions = completedQuestionIds.size;
+        const completedFullRound = gameMode === 'millionaire' && gameQuestions.length === PRIZES.length;
         finishGame({
-          type: gameMode === 'millionaire' ? 'won' : 'walkaway',
-          amount: gameMode === 'millionaire' ? PRIZES[PRIZES.length - 1] : 0,
-          correctAnswers: completedQuestionIds.size,
+          type: completedFullRound ? 'won' : 'walkaway',
+          amount: completedFullRound
+            ? PRIZES[PRIZES.length - 1]
+            : completedQuestions > 0
+              ? PRIZES[completedQuestions - 1]
+              : 0,
+          correctAnswers: completedQuestions,
         });
         return;
       }
@@ -741,7 +771,11 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.appBackground}>
         <ScrollView
-          contentContainerStyle={[styles.page, screen === 'home' && styles.homePage]}
+          contentContainerStyle={[
+            styles.page,
+            screen === 'home' && styles.homePage,
+            screen === 'game' && isCompact && styles.gamePageCompact,
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           {screen === 'home' && (
@@ -808,15 +842,30 @@ export default function HomeScreen() {
               </View>
               {statsLoading && <ActivityIndicator color={GOLD} />}
               {statsError !== null && <Text style={styles.errorMessage}>{statsError}</Text>}
+              {authUser !== null && remainingQuestionCount === 0 && (
+                <Text style={styles.emptyState}>
+                  Ты уже ответил правильно на все вопросы. Новых вопросов для игры пока нет.
+                </Text>
+              )}
               <View style={styles.homeActions}>
                 <ActionButton
                   label="Начать игру"
-                  disabled={statsLoading || authLoading || statsError !== null}
+                  disabled={
+                    statsLoading ||
+                    authLoading ||
+                    statsError !== null ||
+                    (authUser !== null && remainingQuestionCount === 0)
+                  }
                   onPress={() => startGame('millionaire')}
                 />
                 <ActionButton
-                  label="Радар инвестора · 30 вопросов"
-                  disabled={statsLoading || authLoading || statsError !== null}
+                  label="Радар инвестора · до 30 вопросов"
+                  disabled={
+                    statsLoading ||
+                    authLoading ||
+                    statsError !== null ||
+                    (authUser !== null && remainingQuestionCount === 0)
+                  }
                   onPress={() => startGame('radar')}
                   variant="secondary"
                 />
@@ -841,9 +890,9 @@ export default function HomeScreen() {
 
           {screen === 'game' && question && (
             <View style={styles.gameScreen}>
-              <View style={styles.gameHeader}>
-                <BrandMark />
-                <View style={styles.questionCount}>
+            <View style={[styles.gameHeader, isCompact && styles.gameHeaderCompact]}>
+              <BrandMark compact={isCompact} />
+              <View style={[styles.questionCount, isCompact && styles.questionCountCompact]}>
                   <Text style={styles.questionCountText}>
                     {gameMode === 'millionaire'
                       ? 'ИНВЕСТ-М'
@@ -854,16 +903,19 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
-              <View style={styles.gameActions}>
+              <View style={[styles.gameActions, isCompact && styles.gameActionsCompact]}>
                 <ActionButton
                   label="На главный экран"
                   onPress={() => setGameModal({ type: 'exit' })}
                   variant="subtle"
+                  compact={isCompact}
                 />
               </View>
 
-              <View style={styles.lifelinesCard}>
-                <Text style={styles.lifelinesHeading}>ПОДСКАЗКИ</Text>
+              <View style={[styles.lifelinesCard, isCompact && styles.lifelinesCardCompact]}>
+                <Text style={[styles.lifelinesHeading, isCompact && styles.lifelinesHeadingCompact]}>
+                  ПОДСКАЗКИ
+                </Text>
                 <View style={styles.lifelines}>
                   <LifelineButton
                     label="Инсайд от аналитика 50/50"
@@ -893,13 +945,21 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              <View style={[styles.gameLayout, isWide && styles.gameLayoutWide]}>
-                <View style={styles.questionColumn}>
-                  <View style={styles.questionCard}>
-                    <Text style={styles.questionEyebrow}>ВОПРОС {String(questionIndex + 1).padStart(2, '0')}</Text>
-                    <Text style={styles.questionTitle}>{question.question}</Text>
+              <View
+                style={[
+                  styles.gameLayout,
+                  isWide && styles.gameLayoutWide,
+                  isCompact && styles.gameLayoutCompact,
+                ]}
+              >
+              <View style={[styles.questionColumn, isCompact && styles.questionColumnCompact]}>
+                <View style={[styles.questionCard, isCompact && styles.questionCardCompact]}>
+                  <Text style={styles.questionEyebrow}>ВОПРОС {String(questionIndex + 1).padStart(2, '0')}</Text>
+                  <Text style={[styles.questionTitle, isCompact && styles.questionTitleCompact]}>
+                    {question.question}
+                  </Text>
 
-                    <View style={[styles.answers, isWide && styles.answersWide]}>
+                  <View style={[styles.answers, isWide && styles.answersWide, isCompact && styles.answersCompact]}>
                       {question.options.map((option, index) => {
                         if (hiddenAnswers.includes(index)) return null;
 
@@ -921,6 +981,7 @@ export default function HomeScreen() {
                             style={({ pressed }) => [
                               styles.answerOption,
                               isWide && styles.answerOptionWide,
+                              isCompact && styles.answerOptionCompact,
                               isSelected && answerStatus === 'unanswered' && styles.answerSelected,
                               isCorrect && styles.answerCorrect,
                               isWrongSelection && styles.answerWrong,
@@ -936,7 +997,9 @@ export default function HomeScreen() {
                             >
                               {String.fromCharCode(65 + index)}
                             </Text>
-                            <Text style={styles.answerText}>{option}</Text>
+                            <Text style={[styles.answerText, isCompact && styles.answerTextCompact]}>
+                              {option}
+                            </Text>
                           </Pressable>
                         );
                       })}
@@ -976,12 +1039,13 @@ export default function HomeScreen() {
                     )}
                   </View>
 
-                  <View style={styles.gameActions}>
+                  <View style={[styles.gameActions, isCompact && styles.gameActionsCompact]}>
                     {answerStatus === 'unanswered' ? (
                       <ActionButton
                         label="Подтвердить ответ"
                         disabled={selectedAnswer === null}
                         onPress={checkAnswer}
+                        compact={isCompact}
                       />
                     ) : (
                       <ActionButton
@@ -999,6 +1063,7 @@ export default function HomeScreen() {
                                 : 'Следующий вопрос'
                         }
                         onPress={advanceGame}
+                        compact={isCompact}
                       />
                     )}
                     {gameMode === 'millionaire' && (
@@ -1011,6 +1076,7 @@ export default function HomeScreen() {
                         onPress={takeMoney}
                         variant="secondary"
                         disabled={answerStatus === 'wrong'}
+                        compact={isCompact}
                       />
                     )}
                   </View>
@@ -1026,7 +1092,7 @@ export default function HomeScreen() {
                       </Text>
                       <Text style={styles.feedbackText}>
                         {gameMode === 'radar'
-                          ? 'Ответь на 30 вопросов из пяти тематических направлений — и увидишь радар своих сильных сторон.'
+                          ? `Ответь на ${gameQuestions.length} вопросов из пяти тематических направлений — и увидишь радар своих сильных сторон.`
                           : `В этой сессии: ${gameQuestions.length} позиций. Верный ответ уберёт вопрос из списка убытков.`}
                       </Text>
                     </View>
@@ -1180,7 +1246,7 @@ export default function HomeScreen() {
               <BrandMark />
               <Text style={styles.sectionTitle}>Радар инвестора</Text>
               <Text style={styles.resultDescription}>
-                Профиль по итогам 30 вопросов. Результат показывает долю верных ответов в каждой
+                Профиль по итогам {attempts.length} вопросов. Результат показывает долю верных ответов в каждой
                 теме, а не инвестиционную рекомендацию.
               </Text>
               <View style={styles.radarChartCard}>
@@ -1853,6 +1919,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 14,
   },
+  actionButtonCompact: {
+    minHeight: 40,
+    paddingHorizontal: 12,
+    borderRadius: 11,
+  },
   primaryButton: {
     borderColor: GOLD,
     backgroundColor: GOLD,
@@ -1871,11 +1942,17 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textAlign: 'center',
   },
+  primaryButtonTextCompact: {
+    fontSize: 14,
+  },
   secondaryButtonText: {
     color: '#eef2fa',
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  secondaryButtonTextCompact: {
+    fontSize: 12,
   },
   buttonPressed: {
     opacity: 0.78,
@@ -1893,6 +1970,19 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 24,
   },
+  gameHeaderCompact: {
+    gap: 8,
+    marginBottom: 8,
+  },
+  gamePageCompact: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  brandImageLinkCompact: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+  },
   questionCount: {
     paddingHorizontal: 13,
     paddingVertical: 9,
@@ -1900,6 +1990,10 @@ const styles = StyleSheet.create({
     borderColor: '#334667',
     borderRadius: 999,
     backgroundColor: '#101f3c',
+  },
+  questionCountCompact: {
+    paddingHorizontal: 9,
+    paddingVertical: 7,
   },
   questionCountText: {
     color: GOLD,
@@ -1910,6 +2004,9 @@ const styles = StyleSheet.create({
   gameLayout: {
     gap: 20,
   },
+  gameLayoutCompact: {
+    gap: 8,
+  },
   gameLayoutWide: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -1918,12 +2015,19 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 14,
   },
+  questionColumnCompact: {
+    gap: 8,
+  },
   questionCard: {
     padding: 22,
     borderWidth: 1,
     borderColor: '#263958',
     borderRadius: 22,
     backgroundColor: '#0d1b35',
+  },
+  questionCardCompact: {
+    padding: 12,
+    borderRadius: 17,
   },
   questionEyebrow: {
     color: GOLD,
@@ -1939,8 +2043,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 32,
   },
+  questionTitleCompact: {
+    marginTop: 7,
+    marginBottom: 12,
+    fontSize: 18,
+    lineHeight: 23,
+  },
   answers: {
     gap: 10,
+  },
+  answersCompact: {
+    gap: 7,
   },
   answersWide: {
     flexDirection: 'row',
@@ -1959,6 +2072,13 @@ const styles = StyleSheet.create({
     borderColor: '#344969',
     borderRadius: 14,
     backgroundColor: '#111f3a',
+  },
+  answerOptionCompact: {
+    minHeight: 46,
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
   },
   answerOptionWide: {
     width: '48%',
@@ -2005,6 +2125,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  answerTextCompact: {
+    fontSize: 13,
+    lineHeight: 17,
+  },
   feedbackCard: {
     marginTop: 18,
     padding: 14,
@@ -2049,12 +2173,19 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: '#0d1b35',
   },
+  lifelinesCardCompact: {
+    padding: 10,
+    borderRadius: 14,
+  },
   lifelinesHeading: {
     marginBottom: 12,
     color: MUTED,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1.2,
+  },
+  lifelinesHeadingCompact: {
+    marginBottom: 7,
   },
   stopLossNote: {
     marginTop: 10,
@@ -2094,6 +2225,9 @@ const styles = StyleSheet.create({
   },
   gameActions: {
     gap: 10,
+  },
+  gameActionsCompact: {
+    gap: 6,
   },
   ladderColumn: {
     width: '100%',
