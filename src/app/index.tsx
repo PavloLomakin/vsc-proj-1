@@ -210,7 +210,10 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
         <Pressable
           accessibilityLabel="Открыть сайт Павла Ломакина"
           accessibilityRole="link"
-          style={[styles.brandImageLink, compact && styles.brandImageLinkCompact]}
+          style={StyleSheet.flatten([
+            styles.brandImageLink,
+            compact && styles.brandImageLinkCompact,
+          ])}
         >
           <Image
             source={require('@/assets/images/profile-icon.jpg')}
