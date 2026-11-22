@@ -113,6 +113,36 @@ function getInvestorRank(unlockedCount: number) {
   };
 }
 
+const ANSWER_RANKS = [
+  { minimum: 0, title: 'Новичок знаний' },
+  { minimum: 10, title: 'Ученик рынка' },
+  { minimum: 25, title: 'Опытный ответчик' },
+  { minimum: 50, title: 'Аналитик практики' },
+  { minimum: 100, title: 'Портфельный знаток' },
+  { minimum: 250, title: 'Фундированный эксперт' },
+  { minimum: 500, title: 'Стратег знаний' },
+  { minimum: 1000, title: 'Магистр рынка' },
+  { minimum: 2500, title: 'Абсолютный оракул знаний' },
+] as const;
+
+function getAnswerRank(correctAnswerCount: number) {
+  let current: (typeof ANSWER_RANKS)[number] = ANSWER_RANKS[0];
+  for (const rank of ANSWER_RANKS) {
+    if (rank.minimum > correctAnswerCount) break;
+    current = rank;
+  }
+
+  const next = ANSWER_RANKS.find((rank) => rank.minimum > correctAnswerCount);
+  return {
+    title: current.title,
+    progress: next
+      ? ((correctAnswerCount - current.minimum) / (next.minimum - current.minimum)) * 100
+      : 100,
+    nextTitle: next?.title ?? null,
+    remaining: next ? next.minimum - correctAnswerCount : 0,
+  };
+}
+
 function formatAchievementCount(count: number) {
   const lastTwoDigits = count % 100;
   const lastDigit = count % 10;
@@ -530,6 +560,7 @@ export default function HomeScreen() {
   const mistakeQuestions = allMistakeQuestions.slice(0, 30);
   const unlockedAchievements = getUnlockedAchievements(stats);
   const investorRank = getInvestorRank(unlockedAchievements.length);
+  const answerRank = getAnswerRank(stats.totalCorrectAnswers);
 
   function resetRoundState(mode: GameMode, questions: QuizQuestion[], seed: string) {
     setGameMode(mode);
@@ -849,6 +880,25 @@ export default function HomeScreen() {
                   {investorRank.nextTitle === null
                     ? 'Высшее звание получено'
                     : `До звания «${investorRank.nextTitle}» — ещё ${formatAchievementCount(investorRank.remaining)}.`}
+                </Text>
+              </View>
+              <View style={[styles.investorRankCard, isCompact && styles.investorRankCardCompact]}>
+                <View style={styles.investorRankHeading}>
+                  <View style={styles.investorRankCopy}>
+                    <Text style={styles.investorRankEyebrow}>РЕЙТИНГ ПО ПРАВИЛЬНЫМ ОТВЕТАМ</Text>
+                    <Text style={styles.investorRankTitle}>{answerRank.title}</Text>
+                  </View>
+                  <Text style={styles.investorRankScore}>
+                    {stats.totalCorrectAnswers}
+                  </Text>
+                </View>
+                <View style={styles.progressTrack}>
+                  <View style={[styles.progressFill, { width: `${answerRank.progress}%` }]} />
+                </View>
+                <Text style={styles.investorRankNext}>
+                  {answerRank.nextTitle === null
+                    ? 'Максимальный разряд получен'
+                    : `До звания «${answerRank.nextTitle}» — ещё ${answerRank.remaining} верн. ответов.`}
                 </Text>
               </View>
               {statsLoading && <ActivityIndicator color={GOLD} />}

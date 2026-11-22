@@ -2,6 +2,7 @@ import { emptyStats, type Stats } from '../../Achievements-Engine';
 
 const counterKeys = [
   'gamesPlayed',
+  'totalCorrectAnswers',
   'millionWins',
   'millionWinsNoLifelines',
   'millionWinsFast',

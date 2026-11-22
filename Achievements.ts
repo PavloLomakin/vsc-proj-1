@@ -71,8 +71,12 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   { id: 'margin-call-edge', title: 'На грани маржин-колла', description: 'Забрать миллион, использовав все три подсказки до 10-го вопроса.', group: 'lifelines', metric: { kind: 'millionWinAllLifelinesSpentEarly', beforeQuestion: 10 }, target: 1 },
 
   // 5. Масштабные вехи (база 985 вопросов, цель 1000 — с запасом под будущие вопросы)
+  { id: 'first-ten', title: 'Первые десять', description: 'Накопить 10 уникальных верных ответов за все партии.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 10 }, target: 10 },
+  { id: 'first-fifty', title: 'Первая пятёрка десятков', description: 'Накопить 50 уникальных верных ответов за все партии.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 50 }, target: 50 },
   { id: 'first-hundred', title: 'Первая сотня', description: 'Накопить 100 уникальных верных ответов за все партии и покинуть лигу Хомяков.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 100 }, target: 100 },
+  { id: 'quarter-thousand', title: 'Четверть базы', description: 'Покорить 250 уникальных вопросов из базы.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 250 }, target: 250 },
   { id: 'equator', title: 'Экватор пройден', description: 'Покорить 500 уникальных вопросов из базы.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 500 }, target: 500 },
+  { id: 'three-quarter-oracle', title: 'Три четверти знаний', description: 'Покорить 750 уникальных вопросов из базы.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 750 }, target: 750 },
   { id: 'absolute-oracle', title: 'Абсолютный Оракул', description: 'Закрыть всю базу (985 вопросов) без неисправленных промахов: все в Портфеле промахов отработаны.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 985 }, target: 985 },
 ];
 
@@ -109,6 +113,10 @@ export const ACHIEVEMENT_ICONS: Record<string, string> = {
   'stop-loss-worked': '🛡️',
   'margin-call-edge': '🚨',
   'first-hundred': '💯',
+  'first-ten': '🔟',
+  'first-fifty': '5️⃣',
+  'quarter-thousand': '¼',
+  'three-quarter-oracle': '¾',
   equator: '🌐',
   'absolute-oracle': '🔮',
 };

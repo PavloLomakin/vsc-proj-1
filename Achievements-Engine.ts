@@ -33,6 +33,7 @@ export type GameEvent = {
 
 export type Stats = {
   gamesPlayed: number;
+  totalCorrectAnswers: number;
   millionWins: number;
   millionWinsNoLifelines: number;
   millionWinsFast: number;
@@ -65,7 +66,7 @@ function getStatsKey(userId?: string) {
 }
 
 export const emptyStats = (): Stats => ({
-  gamesPlayed: 0, millionWins: 0, millionWinsNoLifelines: 0, millionWinsFast: 0,
+  gamesPlayed: 0, totalCorrectAnswers: 0, millionWins: 0, millionWinsNoLifelines: 0, millionWinsFast: 0,
   millionWinSeeds: [], failOnQuestionCount: {}, failSameQuestionCount: {},
   correctByCategory: {}, correctByTag: {}, correctHard: 0, uniqueCorrectIds: [],
   mistakeIds: [], mistakeReviewTotal: 0, insiderLateWin: 0, againstConsensus: 0,
@@ -107,6 +108,7 @@ export async function setGuestMigrationTarget(userId: string) {
 export function applyGameEvent(prev: Stats, ev: GameEvent, gameSeed: string): { stats: Stats; newlyUnlocked: Achievement[] } {
   const s: Stats = JSON.parse(JSON.stringify(prev)) as Stats;
   s.gamesPlayed += 1;
+  s.totalCorrectAnswers += ev.correctIndices.filter(Boolean).length;
 
   // Уникальные верные + Портфель промахов
   ev.questions.forEach((q, i) => {
