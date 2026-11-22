@@ -10,7 +10,7 @@ export type LifelineId = 'insider' | 'consensus' | 'stoploss';
 export type GameMode = 'millionaire' | 'radar' | 'mistakes';
 
 export type GameEvent = {
-  // Что произошло в партии — движок сам посчитает все ачивки из этого
+  // Что произошло в партии - движок сам посчитает все ачивки из этого
   questionIds: string[]; // вопросы партии, по порядку
   questions: QuizQuestion[]; // те же вопросы, для категорий/тегов/сложности
   correctIndices: boolean[]; // верно/неверно по каждому вопросу

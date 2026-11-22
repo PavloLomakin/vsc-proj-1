@@ -470,7 +470,7 @@ export default function HomeScreen() {
           if (!active || currentSyncId !== syncId) return;
           statsRef.current = localStats;
           setStats(localStats);
-          setCloudStatus('Облако недоступно — прогресс пока сохранён на устройстве.');
+          setCloudStatus('Облако недоступно - прогресс пока сохранён на устройстве.');
           setAuthError('Не удалось загрузить облачный прогресс. Проверьте подключение и настройки Firebase.');
           setStatsLoading(false);
           return;
@@ -499,7 +499,7 @@ export default function HomeScreen() {
         } catch (error) {
           console.error('Unable to save cloud game progress.', error);
           if (active && currentSyncId === syncId) {
-            setCloudStatus('Облако недоступно — прогресс пока сохранён на устройстве.');
+            setCloudStatus('Облако недоступно - прогресс пока сохранён на устройстве.');
             setAuthError('Не удалось синхронизировать прогресс. Проверьте подключение и правила Firestore.');
           }
         }
@@ -646,7 +646,7 @@ export default function HomeScreen() {
         .then(() => setCloudStatus('Прогресс синхронизирован с Google-аккаунтом.'))
         .catch((error: unknown) => {
           console.error('Unable to save cloud game progress.', error);
-          setCloudStatus('Облако недоступно — прогресс пока сохранён на устройстве.');
+          setCloudStatus('Облако недоступно - прогресс пока сохранён на устройстве.');
           setAuthError('Партия сохранена на устройстве, но облачная синхронизация не удалась.');
         });
     }
@@ -879,7 +879,7 @@ export default function HomeScreen() {
                 <Text style={styles.investorRankNext}>
                   {investorRank.nextTitle === null
                     ? 'Высшее звание получено'
-                    : `До звания «${investorRank.nextTitle}» — ещё ${formatAchievementCount(investorRank.remaining)}.`}
+                    : `До звания «${investorRank.nextTitle}» - ещё ${formatAchievementCount(investorRank.remaining)}.`}
                 </Text>
               </View>
               <View style={[styles.investorRankCard, isCompact && styles.investorRankCardCompact]}>
@@ -898,7 +898,7 @@ export default function HomeScreen() {
                 <Text style={styles.investorRankNext}>
                   {answerRank.nextTitle === null
                     ? 'Максимальный разряд получен'
-                    : `До звания «${answerRank.nextTitle}» — ещё ${answerRank.remaining} верн. ответов.`}
+                    : `До звания «${answerRank.nextTitle}» - ещё ${answerRank.remaining} верн. ответов.`}
                 </Text>
               </View>
               {statsLoading && <ActivityIndicator color={GOLD} />}
@@ -1093,11 +1093,11 @@ export default function HomeScreen() {
                         >
                           {answerStatus === 'correct'
                             ? gameMode === 'millionaire'
-                              ? `Верно! Текущий приз — ${formatPrize(PRIZES[completedQuestionIds.size - 1])}`
+                              ? `Верно! Текущий приз - ${formatPrize(PRIZES[completedQuestionIds.size - 1])}`
                               : 'Верно! Эта позиция закрыта.'
                             : answerStatus === 'saved'
                               ? 'Стоп-лосс сработал: ты не вылетаешь, но откатываешься на один шаг.'
-                              : `Неверно. Правильный ответ — ${String.fromCharCode(65 + question.correctIndex)}`}
+                              : `Неверно. Правильный ответ - ${String.fromCharCode(65 + question.correctIndex)}`}
                         </Text>
                         <Text style={styles.feedbackText}>{question.explanation}</Text>
                       </View>
@@ -1157,7 +1157,7 @@ export default function HomeScreen() {
                       </Text>
                       <Text style={styles.feedbackText}>
                         {gameMode === 'radar'
-                          ? `Ответь на ${gameQuestions.length} вопросов из пяти тематических направлений — и увидишь радар своих сильных сторон.`
+                          ? `Ответь на ${gameQuestions.length} вопросов из пяти тематических направлений - и увидишь радар своих сильных сторон.`
                           : `В этой сессии: ${gameQuestions.length} позиций. Верный ответ уберёт вопрос из списка убытков.`}
                       </Text>
                     </View>
@@ -1175,7 +1175,7 @@ export default function HomeScreen() {
                 Здесь хранятся вопросы с ошибками. Ответь на них правильно, чтобы закрыть убыток.
               </Text>
               {mistakeQuestions.length === 0 ? (
-                <Text style={styles.emptyState}>Портфель чист — пока нет незакрытых промахов.</Text>
+                <Text style={styles.emptyState}>Портфель чист - пока нет незакрытых промахов.</Text>
               ) : (
                 <>
                   {allMistakeQuestions.length > mistakeQuestions.length && (
@@ -1417,12 +1417,12 @@ export default function HomeScreen() {
               </Text>
               <Text style={styles.resultDescription}>
                 {gameResult.type === 'won'
-                  ? '15 правильных ответов — впечатляющий результат!'
+                  ? '15 правильных ответов - впечатляющий результат!'
                   : gameResult.type === 'lost'
                     ? gameResult.amount > 0
                       ? 'Несгораемая сумма остаётся за тобой.'
                       : 'На этот раз несгораемая сумма ещё не достигнута. Попробуй снова!'
-                    : 'Иногда вовремя остановиться — тоже часть стратегии.'}
+                    : 'Иногда вовремя остановиться - тоже часть стратегии.'}
               </Text>
               <View style={styles.resultAmountCard}>
                 <Text style={styles.resultAmountLabel}>ТВОЙ ВЫИГРЫШ</Text>
@@ -1512,7 +1512,7 @@ export default function HomeScreen() {
                   ))}
                   <Text style={styles.consensusNote}>
                     {gameModal.crowdIsRight
-                      ? 'Большинство склоняется к верному ответу — но решение за тобой.'
+                      ? 'Большинство склоняется к верному ответу - но решение за тобой.'
                       : 'Подвох: большинство ошибается. На рынке толпа не всегда права.'}
                   </Text>
                 </View>

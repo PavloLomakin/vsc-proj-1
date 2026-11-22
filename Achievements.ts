@@ -1,7 +1,7 @@
 // Ачивки: ВСЕ накопительные.
 // Принцип: каждая ачивка = счётчик + цель. Прогресс копится через все игры, не сгорает.
-// Даже «одноразовые» (спидран, ночной снайпер) — это счётчик «сколько раз выполнено условие», цель = 1 или 3.
-// Хранение — в AsyncStorage (см. lib/achievements.ts), здесь только данные.
+// Даже «одноразовые» (спидран, ночной снайпер) - это счётчик «сколько раз выполнено условие», цель = 1 или 3.
+// Хранение - в AsyncStorage (см. lib/achievements.ts), здесь только данные.
 
 import type { QuestionCategory, QuestionTag } from '@/data/questions';
 
@@ -22,7 +22,7 @@ export type AchievementMetric =
   | { kind: 'millionWinsAtNight'; fromHour: number; toHour: number }
   | { kind: 'correctInCategory'; category: QuestionCategory }
   | { kind: 'correctWithAnyTag'; tags: QuestionTag[] } // для Охотника: scam OR timing OR leverage
-  | { kind: 'correctHard'; minDifficulty: number } // difficulty >= 4 = уровни 11–15
+  | { kind: 'correctHard'; minDifficulty: number } // difficulty >= 4 = уровни 11-15
   | { kind: 'insiderOnLateQuestionAndWin'; fromQuestion: number } // инсайд на позднем вопросе + миллион
   | { kind: 'againstConsensusAndCorrect' } // правильный вопреки Консенсусу, когда он ошибся
   | { kind: 'stopLossSavedAndWin'; fromQuestion: number; toQuestion: number }
@@ -62,15 +62,15 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   { id: 'wall-street-therapist', title: 'Психотерапевт с Уолл-стрит', description: 'Верно ответить на 20 вопросов из раздела «Психология без клише».', group: 'mastery', metric: { kind: 'correctInCategory', category: 'psychology' }, target: 20 },
   { id: 'scam-hunter', title: 'Охотник за инфоцыганами', description: 'Верно ответить на 20 вопросов о вреде тайминга, плеча и скама (теги scam / timing / leverage).', group: 'mastery', metric: { kind: 'correctWithAnyTag', tags: ['scam', 'timing', 'leverage'] }, target: 20 },
   { id: 'bridgewater-offer', title: 'Оффер в Bridgewater', description: 'Верно ответить на 15 вопросов из рубрики «Собеседование с легендами».', group: 'mastery', metric: { kind: 'correctInCategory', category: 'interview' }, target: 15 },
-  { id: 'wall-street-professor', title: 'Профессор с Уолл-стрит', description: 'Правильно ответить на 15 сложных вопросов (уровень 11–15, difficulty 4–5).', group: 'mastery', metric: { kind: 'correctHard', minDifficulty: 4 }, target: 15 },
+  { id: 'wall-street-professor', title: 'Профессор с Уолл-стрит', description: 'Правильно ответить на 15 сложных вопросов (уровень 11-15, difficulty 4-5).', group: 'mastery', metric: { kind: 'correctHard', minDifficulty: 4 }, target: 15 },
 
   // 4. Подсказки и спасения
-  { id: 'late-insider', title: 'Инсайд на финишной прямой', description: 'Использовать «Инсайд от аналитика 50/50» на 13–15 вопросе и забрать миллион.', group: 'lifelines', metric: { kind: 'insiderOnLateQuestionAndWin', fromQuestion: 13 }, target: 1 },
+  { id: 'late-insider', title: 'Инсайд на финишной прямой', description: 'Использовать «Инсайд от аналитика 50/50» на 13-15 вопросе и забрать миллион.', group: 'lifelines', metric: { kind: 'insiderOnLateQuestionAndWin', fromQuestion: 13 }, target: 1 },
   { id: 'against-crowd', title: 'Вопреки толпе', description: 'Выбрать правильный ответ вопреки «Консенсусу Уолл-стрит», когда аналитики ошиблись.', group: 'lifelines', metric: { kind: 'againstConsensusAndCorrect' }, target: 1 },
-  { id: 'stop-loss-worked', title: 'Стоп-лосс сработал', description: 'Спастись от вылета благодаря «Стоп-лоссу» на 11–14 вопросе и дойти до миллиона.', group: 'lifelines', metric: { kind: 'stopLossSavedAndWin', fromQuestion: 11, toQuestion: 14 }, target: 1 },
+  { id: 'stop-loss-worked', title: 'Стоп-лосс сработал', description: 'Спастись от вылета благодаря «Стоп-лоссу» на 11-14 вопросе и дойти до миллиона.', group: 'lifelines', metric: { kind: 'stopLossSavedAndWin', fromQuestion: 11, toQuestion: 14 }, target: 1 },
   { id: 'margin-call-edge', title: 'На грани маржин-колла', description: 'Забрать миллион, использовав все три подсказки до 10-го вопроса.', group: 'lifelines', metric: { kind: 'millionWinAllLifelinesSpentEarly', beforeQuestion: 10 }, target: 1 },
 
-  // 5. Масштабные вехи (база 985 вопросов, цель 1000 — с запасом под будущие вопросы)
+  // 5. Масштабные вехи (база 985 вопросов, цель 1000 - с запасом под будущие вопросы)
   { id: 'first-ten', title: 'Первые десять', description: 'Накопить 10 уникальных верных ответов за все партии.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 10 }, target: 10 },
   { id: 'first-fifty', title: 'Первая пятёрка десятков', description: 'Накопить 50 уникальных верных ответов за все партии.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 50 }, target: 50 },
   { id: 'first-hundred', title: 'Первая сотня', description: 'Накопить 100 уникальных верных ответов за все партии и покинуть лигу Хомяков.', group: 'milestones', metric: { kind: 'uniqueCorrect', total: 100 }, target: 100 },
